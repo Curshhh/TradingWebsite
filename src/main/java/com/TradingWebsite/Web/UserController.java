@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.jws.soap.SOAPBinding;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -161,12 +162,13 @@ public class UserController {
 
 
     @GetMapping("/findusername")
-    public JSONObject findUserName(HttpServletRequest request){
-        JSONUtil jsonUtil = new JSONUtil();
+    public User findUserName(HttpServletRequest request){
+
         User user =(User)request.getSession().getAttribute("user");
         if (user!=null) {
-            return jsonUtil.success(userService.findUserInfoById(user.getId()));
+          return user;
         }else return null;
+
 
     }
 
