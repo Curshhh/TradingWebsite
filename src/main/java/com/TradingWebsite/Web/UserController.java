@@ -6,10 +6,15 @@ import com.TradingWebsite.Service.UserServiceImpl;
 import com.TradingWebsite.Uitls.JSONUtil;
 import com.TradingWebsite.Uitls.UUIDUtils;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.catalina.Session;
+import org.apache.tomcat.util.http.fileupload.RequestContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.jws.soap.SOAPBinding;
+import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -27,57 +32,59 @@ public class UserController {
 
     /**
      * 用户注册
+     *
      * @param user
      * @return
      */
     @PostMapping("/regist")
-    public JSONObject SaveUser(User user){
-        JSONUtil jsonUtil=new JSONUtil();
+    public JSONObject SaveUser(User user) {
+        JSONUtil jsonUtil = new JSONUtil();
         Date date = new Date();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");//获取当前日期
         //1.根据邮箱查询用户是否重复
-       User u = userService.findByUserEmail(user.getEmail());
-       if (u!=null){
-           return jsonUtil.fail("注册失败,请检查填入的信息");
-       }else {
-           String time = df.format(date);
-           String code=UUIDUtils.getUUID();
-           user.setCode(code);
-           user.setModify(time);
-           System.out.println(code);
-           //2.保存用户信息
-           userService.saveUserInfo(user);
-           //3.发送激活邮件
-           String content="" +
-                   "<a href='http://localhost:8080/user/checkcode?code="+code+"'>点击激活您的城市二手商品交易网账户</a>";
-           mailService.sendHtmlMail(user.getEmail(),"城市二手商品交易网--激活邮件",content);
-           return jsonUtil.success("注册成功");
-       }
+        User u = userService.findByUserEmail(user.getEmail());
+        if (u != null) {
+            return jsonUtil.fail("注册失败,请检查填入的信息");
+        } else {
+            String time = df.format(date);
+            String code = UUIDUtils.getUUID();
+            user.setCode(code);
+            user.setModify(time);
+            System.out.println(code);
+            //2.保存用户信息
+            userService.saveUserInfo(user);
+            //3.发送激活邮件
+            String content = "" +
+                    "<a href='http://localhost:8080/user/checkcode?code=" + code + "'>点击激活您的城市二手商品交易网账户</a>";
+            mailService.sendHtmlMail(user.getEmail(), "城市二手商品交易网--激活邮件", content);
+            return jsonUtil.success("注册成功");
+        }
 
     }
 
     /**
      * 用户激活码匹配
+     *
      * @param code
      * @return
      */
     @RequestMapping("/checkcode")
     @ResponseBody
-    public JSONObject checkUserCode(HttpServletRequest request,String code){
-        JSONUtil jsonUtil=new JSONUtil();
+    public JSONObject checkUserCode(HttpServletRequest request, String code) {
+        JSONUtil jsonUtil = new JSONUtil();
         //1.获取激活码
-        code=request.getParameter("code");
+        code = request.getParameter("code");
         System.out.println(code);
         //2.调用service完成激活
-        User user=userService.checkCode(code);
-        if (user!=null){
+        User user = userService.checkCode(code);
+        if (user != null) {
             //3.激活成功修改账号状态
             user.setStatus(1);
             user.setPower(1);
             userService.updateUserStatus(user);                    /* 有bug*/
             return jsonUtil.success("激活成功");
 
-        }else {
+        } else {
             return jsonUtil.fail("激活失败");
 
         }
@@ -85,21 +92,25 @@ public class UserController {
 
     /**
      * 用户登陆
+     *
      * @param request
      * @param email
      * @param password
      * @return
      */
     @PostMapping("/login")
-    public JSONObject login(HttpServletRequest request, @RequestParam("email") String email, @RequestParam("password")String password){
-        User user=userService.login(email,password);
+    public JSONObject login(HttpServletResponse response, HttpServletRequest request, @RequestParam("email") String email, @RequestParam("password") String password) {
+        User user = userService.login(email, password);
         JSONUtil jsonUtil = new JSONUtil();
-        if (user!=null) {
+        if (user != null) {
             //使用session保存用户登陆信息
             HttpSession session = request.getSession();
+            session.setMaxInactiveInterval(300 * 1000);
             session.setAttribute("user", user);
+            System.out.println(session.getId());
+
             return jsonUtil.success("登录成功");
-        }else {
+        } else {
             return jsonUtil.fail("用户信息错误");
 
         }
@@ -107,6 +118,7 @@ public class UserController {
 
     /**
      * 查询用户个人信息
+     *
      * @param request
      * @return
      */
@@ -115,24 +127,25 @@ public class UserController {
 
         User user = (User) request.getSession().getAttribute("user");
         if (user != null) {
-           return user;
-        }else {
+            return user;
+        } else {
             return null;
         }
     }
 
     /**
      * 修改用户信息
+     *
      * @param request
      * @return
      */
     @PostMapping("/updateuser")
-    public JSONObject UpdateUserInfo(HttpServletRequest request,User user){
+    public JSONObject UpdateUserInfo(HttpServletRequest request, User user) {
         JSONUtil jsonUtil = new JSONUtil();
         //1.获取用户登陆信息
-       User user1 =(User)request.getSession().getAttribute("user");
+        User user1 = (User) request.getSession().getAttribute("user");
         //2判断用户是否登陆
-        if (user1!=null) {
+        if (user1 != null) {
          /*   String address=request.getParameter("address");
             String birthday=request.getParameter("birthday");
             String email=request.getParameter("email");
@@ -160,20 +173,31 @@ public class UserController {
         }
     }
 
-
-    @GetMapping("/findusername")
-    public User findUserName(HttpServletRequest request){
-
+    //无法返回数据
+    @RequestMapping(value = "/findusername", method = RequestMethod.GET)
+    public User findUserName(HttpServletRequest request,HttpSession session, HttpServletResponse response) {
+        //這行代碼是必須的嗎
+//        response.setHeader("Access-Control-Allow-Origin", "*");
+//        session.getAttributeNames();
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        String date = sdf.format(session.getCreationTime());
+//        session.getCreationTime();
+        //这块代码有问题 可能获取session中的属性失败，肯能是session超时
         User user =(User)request.getSession().getAttribute("user");
         if (user!=null) {
           return user;
         }else return null;
+//        System.out.println(session.getId());
+//
+//        User user = new User();
+//        user.setName("danaohu");
+//        user.setPhone("13247651080");
 
 
     }
 
     @GetMapping("/signoutuser")
-    public JSONObject signOutUser(HttpServletRequest request){
+    public JSONObject signOutUser(HttpServletRequest request) {
         JSONUtil jsonUtil = new JSONUtil();
         try {
             request.getSession().invalidate();

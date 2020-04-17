@@ -3,9 +3,11 @@ package com.TradingWebsite.Model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 /*使用lombok插件*/
-public class User {
+public class User implements Serializable {
 
     private long id;//用户id
     private String name;//用户昵称
