@@ -94,4 +94,21 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
+
+    @Override
+    public String userPassword(long id) {
+        return userDao.userPassword(id);
+    }
+
+    @Override
+    public boolean updateUserPassword(String password,long id) {
+
+            userDao.updateUserPassword(password,id);
+            return true;
+
+           // System.out.println("updateUserPassword修改出错");
+
+        }
+
+
 }

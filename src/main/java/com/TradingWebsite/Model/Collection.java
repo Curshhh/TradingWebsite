@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class Collection {
     private long tid;//收藏商品id
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     private  String modify;
     private long cid;//商品id;
     private  long uid;//用户id;

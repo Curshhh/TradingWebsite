@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CollectionServiceImpl implements  CollectionService {
@@ -20,6 +21,7 @@ public class CollectionServiceImpl implements  CollectionService {
      */
     @Override
     public Collection findCollectionById(long uid, long cid) {
+
        try {
            Collection collection=this.collectionDao.findCollectionById(uid, cid);
            return collection;
@@ -68,5 +70,17 @@ public class CollectionServiceImpl implements  CollectionService {
            return false;
         }
 
+    }
+
+    /**
+     * 查看用户的收藏夹
+     * @param uid
+     * @return
+     */
+    @Override
+    public List<Map> findCollectionInfoByUid(long uid) {
+        List<Map> collection=null;
+       collection= collectionDao.findCollectionInfoByUid(uid);
+       return collection;
     }
 }

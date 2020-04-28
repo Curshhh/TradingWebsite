@@ -28,4 +28,9 @@ public class MessageServiceImpl implements MessageService {
             return null;
         }
     }
+
+    @Override
+    public long findMessageNumber(long cid) {
+        return messageDao.findMessageNumber(cid);
+    }
 }

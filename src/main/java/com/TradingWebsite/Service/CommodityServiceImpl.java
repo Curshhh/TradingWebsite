@@ -126,7 +126,7 @@ public class CommodityServiceImpl implements CommodityService {
         try {
             return commodityDao.findNewCommodityByModify();
         } catch (Exception e) {
-            System.out.println("查询出错");
+            System.out.println("findNewCommodityByModify查询出错");
             return null;
         }
     }
@@ -139,7 +139,7 @@ public class CommodityServiceImpl implements CommodityService {
         try {
             return commodityDao.findPriceLowCommodityByPrice();
         } catch (Exception e) {
-            System.out.println("查询出错");
+            System.out.println("findPriceLowCommodityByPrice()查询出错");
             return null;
         }
     }
@@ -154,4 +154,21 @@ public class CommodityServiceImpl implements CommodityService {
 
         return commodityDao.findCommodityByNameForEquals(name);
     }
+
+    /**
+     * 跟据物品种类查找商品信息
+     * @param sort
+     * @return
+     */
+    @Override
+    public List<Commodity> findSortNewTimeWares(String sort) {
+        try {
+            return commodityDao.findSortNewTimeWares(sort);
+        } catch (Exception e) {
+            System.out.println("findSortNewTimeWares查询出错");
+            return null;
+        }
+    }
+
+
 }

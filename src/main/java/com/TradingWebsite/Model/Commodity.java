@@ -14,9 +14,12 @@ public class Commodity {
     private long count;//数量
     private String transaction;//交易方式
     private long sales;//销售量
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     private String modify;//上架时间
     private String image;//商品照片
     private long uid;//卖家id
     private int status;//商品状态
+
+    //
+    private String email;//邮箱
 }

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -41,13 +42,13 @@ public class CartController {
         //1.验证用户身份
         if (user != null) {
             //2.获取用户id,获取商品id
-            long uid = ((User) request.getSession().getAttribute("user")).getId();
+            long uid = ((User) request.getSession().getAttribute("user")).getId();//当前用户的id
             long cid = Long.parseLong(request.getParameter("id"));
 
-            //4.使用uid和cid去查询购物车表进行判断
+            //4.使用uid和cid去查询购物车表进行判断是否有商品存在
             if (cartService.findCartInfoById(uid, cid) == null) {
                 Cart cart = new Cart();
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");//获取当前日期
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//获取当前日期
                 Date date = new Date();
                 String time = df.format(date);
                 Commodity commodity = commodityService.findCommodityInfoById(cid);//查询商品信息
@@ -71,12 +72,15 @@ public class CartController {
 
                 if (cart1.getQuantity()+total>=warestotal) {
                    long waresnumber=warestotal-cart1.getQuantity();
-                    return jsonUtil.fail("添加数量超过商品库存,您最多只能再添加"+waresnumber+"件");
+                   if (waresnumber<=0) {
+                       waresnumber=0;
+                       return jsonUtil.fail("添加数量超过商品库存,您最多只能再添加" + waresnumber + "件");
+                   }
                 }
 
                 if (cart1.getQuantity()+total<=warestotal) {
                     Commodity commodity = commodityService.findCommodityInfoById(cid);//查询商品信息
-                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");//获取当前日期
+                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//获取当前日期
                     Date date = new Date();
                     String time = df.format(date);
                     cart1.setQuantity(cart1.getQuantity()+total);
@@ -138,13 +142,16 @@ public class CartController {
      * @return
      */
     @PostMapping("/cartlist")
-    public PageInfo<Map> selectCartListByUser(HttpServletRequest request){
+    public List<Map> selectCartListByUser(HttpServletRequest request){
         User user = (User) request.getSession().getAttribute("user");
+        List<Map> cartList=null;
         if(user!=null){
-            int page=Integer.parseInt(request.getParameter("page"));
-            PageHelper.startPage(page,10);//开启分页
-            PageInfo<Map> pageInfo = new PageInfo<>(cartService.selectCartListByUser(user.getId()));
-            return pageInfo;
+            try {
+               return cartList= cartService.selectCartListByUser(user.getId());
+            } catch (Exception e) {
+                return null;
+            }
+
         }
         return null;
     }
@@ -155,10 +162,83 @@ public class CartController {
      * @return
      */
     @PostMapping("/cartprices")
-    public double SelectCartPrices(HttpServletRequest request){
+    public JSONObject SelectCartPrices(HttpServletRequest request){
+        JSONUtil jsonUtil=new JSONUtil();
+        double number=0;
         User user = (User) request.getSession().getAttribute("user");
         if(user!=null) {
-          return cartService.selectCartPrices(user.getId());
-        }else return 0;
+            try {
+                number=cartService.selectCartPrices(user.getId());
+                return jsonUtil.success(number);
+
+            } catch (Exception e) {
+                return jsonUtil.success(number);
+            }
+        }else return jsonUtil.success(number);
+    }
+    /**
+     * 购物车商品数量
+     * @param request
+     * @return
+     */
+    @PostMapping("/cartnumber")
+    public JSONObject findUserCartNumber(HttpServletRequest request){
+        JSONUtil jsonUtil=new JSONUtil();
+        long number=0;
+        User user = (User) request.getSession().getAttribute("user");
+        if(user!=null) {
+            try {
+                number=cartService.findUserCartNumber(user.getId());
+                return jsonUtil.success(number);
+
+            } catch (Exception e) {
+                return jsonUtil.success(number);
+            }
+        }else return jsonUtil.success(number);
+    }
+
+    /**
+     * 购物车商品件数
+     * @param request
+     * @return
+     */
+    @PostMapping("/cartquantity")
+    public JSONObject findUserCartQuantity(HttpServletRequest request){
+        JSONUtil jsonUtil=new JSONUtil();
+        long number=0;
+        User user = (User) request.getSession().getAttribute("user");
+        if(user!=null) {
+            try {
+                number=cartService.findUserCartQuantity(user.getId());
+                return jsonUtil.success(number);
+
+            } catch (Exception e) {
+                return jsonUtil.success(number);
+            }
+        }else return jsonUtil.success(number);
+    }
+
+    /**
+     * 修改购物车商品的数量
+     * @param request
+     * @return
+     */
+    @PostMapping("/updatewaresnumber")
+    public JSONObject updateWaresNumber(HttpServletRequest request){
+        JSONUtil jsonUtil=new JSONUtil();
+        User user = (User) request.getSession().getAttribute("user");
+        if (user!=null){
+            long sid= Long.parseLong(request.getParameter("sid"));//获取购物车sid
+            Cart cart=cartService.findCartInfoBySid(sid);
+            long quantity= Long.parseLong(request.getParameter("quantity"));//获取界面商品数量
+            double price= Double.parseDouble(request.getParameter("price"));//获取到商品单价
+            double total=quantity*price;//计算物品总价
+            cart.setQuantity(quantity);
+            cart.setTotal(total);
+           cartService.updateCartInfoByCid(cart);
+            System.out.println(cart);
+           return jsonUtil.success("修改数量成功");
+        }else  return jsonUtil.fail("失败");
+
     }
 }

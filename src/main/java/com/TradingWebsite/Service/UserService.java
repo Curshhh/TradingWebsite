@@ -21,4 +21,8 @@ public interface UserService {
 
     User findUserInfoById(long id);
 
+    String userPassword(long id);
+
+    boolean updateUserPassword(String password,long id);
+
 }

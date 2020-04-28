@@ -126,4 +126,23 @@ public class CartServiceImpl implements  CartService {
     public Cart findCartInfoByCid(long cid) {
         return cartDao.findCartInfoByCid(cid);
     }
+
+    @Override
+    public Long findUserCartNumber(long uid) {
+        return cartDao.findUserCartNumber(uid);
+    }
+
+    @Override
+    public Long findUserCartQuantity(long uid) {
+        return cartDao.findUserCartQuantity(uid);
+    }
+
+    @Override
+    public Cart findCartInfoBySid(long sid) {
+        try {
+            return cartDao.findCartInfoBySid(sid);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

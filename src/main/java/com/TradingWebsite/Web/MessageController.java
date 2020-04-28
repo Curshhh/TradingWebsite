@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/message")
@@ -38,7 +39,7 @@ public class MessageController {
             long cid= Long.parseLong(request.getParameter("id"));
             String content=request.getParameter("content");
             Date date = new Date();
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");//获取当前日期
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//获取当前日期
             String time = df.format(date);
             message.setModify(time);
             message.setUid(user.getId());
@@ -55,11 +56,21 @@ public class MessageController {
     }
 
     @PostMapping("/showmessage")
-    public PageInfo<Message> findMessageListWithCommodity(HttpServletRequest request){
-        int page=Integer.parseInt(request.getParameter("page"));
+    public List<Message> findMessageListWithCommodity(HttpServletRequest request){
         long cid= Long.parseLong(request.getParameter("id"));
-        PageHelper.startPage(page,10);//开启分页
-        PageInfo<Message> pageInfo = new PageInfo<>(messageService.findMessageListWithCommodity(cid));
-        return pageInfo;
+        return messageService.findMessageListWithCommodity(cid);
+
+    }
+    @PostMapping("/messagenumber")
+    public JSONObject findMessageNumber(HttpServletRequest request){
+        JSONUtil jsonUtil=new JSONUtil();
+        long number=0;
+        long cid= Long.parseLong(request.getParameter("id"));
+            try {
+                number=messageService.findMessageNumber(cid);
+                return jsonUtil.success(number);
+            } catch (Exception e) {
+                return jsonUtil.success(number);
+            }
     }
 }

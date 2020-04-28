@@ -56,7 +56,7 @@ public interface CartDao {
      * @param uid
      * @return
      */
-    @Select("SELECT Cart.sid,Commodity.id,Commodity.name,Commodity.price,Cart.modify,Cart.quantity,Commodity.image,Cart.total FROM Commodity RIGHT JOIN Cart ON Commodity.id = Cart.cid and Cart.uid=#{uid}")
+    @Select("SELECT Cart.sid,Commodity.id,Commodity.name,Commodity.price,Cart.modify,Cart.quantity,Commodity.count,Commodity.image,Cart.total FROM Commodity RIGHT JOIN Cart ON Commodity.id = Cart.cid and Cart.uid=#{uid}")
     List<Map> selectCartListByUser(long uid);
 
     /**
@@ -68,14 +68,32 @@ public interface CartDao {
     double selectCartPrices(long uid);
 
     /**
-     * 查询购物车中的商品id
+     * 使用uid查询用户购物车中的商品id
      * @param uid
      * @return
      */
     @Select("select cid from Cart where uid=#{uid}")
     List<Long> findCidByUidFromCart(long uid);
 
+    /**
+     * 根据cid查询购物车物品信息
+     * @param cid
+     * @return
+     */
     @Select("select * from Cart where cid=#{cid}")
     Cart findCartInfoByCid(long cid);
 
+    /**
+     * 根据uid统计用户购物车物品数量
+     * @param uid
+     * @return
+     */
+    @Select("select count(sid) from Cart where uid=#{uid}")
+    Long findUserCartNumber(long uid);
+
+    @Select("select sum(quantity) from Cart where uid=#{uid}")
+    Long findUserCartQuantity(long uid);
+
+    @Select("select * from Cart where sid=#{sid}")
+    Cart findCartInfoBySid(long sid);
 }

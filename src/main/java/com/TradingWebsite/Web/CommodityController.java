@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -98,7 +100,7 @@ public class CommodityController {
             //3.执行添加商品操作
             Publish publish=new Publish();
             Date date = new Date();
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");//获取当前日期
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//获取当前日期
             String time = df.format(date);
             commodity.setUid(user.getId());
             commodity.setStatus(1);//商品状态
@@ -144,7 +146,7 @@ public class CommodityController {
         if (user!=null&&1==user.getStatus()){
             //3.执行修改商品操作
             Date date = new Date();
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");//获取当前日期
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//获取当前日期
             String time = df.format(date);
             commodity.setModify(time);
             commodity.setUid(user.getId());
@@ -179,20 +181,50 @@ public class CommodityController {
     }
 
     /**
-     * 查询最新的4个发布商品
+     * 查询最新的5个发布商品
      * @return
      */
-    @GetMapping("/findnewwares")
+    @PostMapping("/findnewwares")
     public List<Commodity> findNewCommodityByModify(){
+
         return commodityService.findNewCommodityByModify();
     }
     /**
-     * 查询价格最低的4个商品
+     * 查询价格最低的5个商品
      * @return
      */
-    @GetMapping("/findlowprice")
+    @PostMapping("/findlowprice")
     public List<Commodity> findPriceLowCommodityByPrice(){
         return commodityService.findPriceLowCommodityByPrice();
     }
 
+    /**
+     * 根据id寻找商品
+     * @param request
+     * @return
+     */
+    @PostMapping("/findwaresbyId")
+    public Commodity findWaresById(HttpServletRequest request){
+        long id= Long.parseLong(request.getParameter("id"));
+        return commodityService.findCommodityInfoById(id);
+
+    }
+
+    /**
+     * 推荐可能喜欢的商品
+     * @param request
+     * @return
+     */
+    @GetMapping("/findnewsort")
+    public List<Commodity> findSortNewTimeWares(HttpServletRequest request){
+
+            String sort = request.getParameter("sort");
+
+        return commodityService.findSortNewTimeWares(sort);
+    }
+
+
+
 }
+
+

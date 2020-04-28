@@ -38,7 +38,7 @@ public interface CommodityDao {
      * @param id
      * @return
      */
-    @Select("select * from Commodity where id=#{id}")
+    @Select("select Commodity.*,User.email from Commodity LEFT JOIN User ON Commodity.uid=User.id where Commodity.id=#{id}")
     Commodity findCommodityInfoById(long id);
 
     /**
@@ -78,17 +78,21 @@ public interface CommodityDao {
      * 查询最新发布的商品
      * @return
      */
-    @Select("SELECT * from Commodity ORDER BY modify DESC LIMIT 0,4 ")
+    @Select("SELECT * from Commodity where count>=1 ORDER BY modify DESC LIMIT 0,5 ")
     List<Commodity> findNewCommodityByModify();
 
     /**
      * 查询最便宜的商品
      * @return
      */
-    @Select("SELECT * from Commodity where count>=1 ORDER BY `price` ASC LIMIT 0,4 ")
+    @Select("SELECT * from Commodity where count>=1 ORDER BY price ASC LIMIT 0,5 ")
     List<Commodity> findPriceLowCommodityByPrice();
 
     @Select("select name from Commodity where name=#{name}")
     Commodity findCommodityByNameForEquals(String name);
+
+    @Select("SELECT *from Commodity where count>=1 and sort=#{sort}  ORDER BY modify DESC LIMIT 0,5")
+    List<Commodity> findSortNewTimeWares(String sort);
+
 
 }

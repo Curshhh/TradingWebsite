@@ -21,7 +21,7 @@ public class User implements Serializable {
     private int status;//激活状态0为激活，1为激活
     private String code;//激活码
     private int power;//1只能购买不能发布，2可以购买和发布
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     private String modify;//注册时间
 
 }

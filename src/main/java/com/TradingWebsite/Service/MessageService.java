@@ -7,4 +7,5 @@ import java.util.List;
 public interface MessageService {
     boolean insertMessageInfo(Message message);
     List<Message> findMessageListWithCommodity(long cid);
+    long findMessageNumber(long cid);
 }

@@ -37,26 +37,40 @@ public class UserController {
      * @return
      */
     @PostMapping("/regist")
-    public JSONObject SaveUser(User user) {
+    public JSONObject SaveUser(HttpServletRequest request,User user) {
         JSONUtil jsonUtil = new JSONUtil();
         Date date = new Date();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");//获取当前日期
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//获取当前日期
         //1.根据邮箱查询用户是否重复
-        User u = userService.findByUserEmail(user.getEmail());
+        String name=request.getParameter("name");
+        String password=request.getParameter("password");
+        String email=request.getParameter("email");
+        String sex=request.getParameter("sex");
+
+        User u = userService.findByUserEmail(email);
         if (u != null) {
-            return jsonUtil.fail("注册失败,请检查填入的信息");
+            return jsonUtil.fail("该邮箱已被注册，请更换有效邮箱");
         } else {
+            //该用户不存在
             String time = df.format(date);
             String code = UUIDUtils.getUUID();
+            user.setName(name);
+            user.setSex(sex);
+            user.setPassword(password);
             user.setCode(code);
             user.setModify(time);
             System.out.println(code);
             //2.保存用户信息
             userService.saveUserInfo(user);
             //3.发送激活邮件
+
             String content = "" +
                     "<a href='http://localhost:8080/user/checkcode?code=" + code + "'>点击激活您的城市二手商品交易网账户</a>";
-            mailService.sendHtmlMail(user.getEmail(), "城市二手商品交易网--激活邮件", content);
+            try {
+                mailService.sendHtmlMail(user.getEmail(), "城市二手商品交易网--激活邮件", content);
+            } catch (Exception e) {
+                return jsonUtil.fail("激活邮件发送失败，请联系管理员");
+            }
             return jsonUtil.success("注册成功");
         }
 
@@ -68,7 +82,7 @@ public class UserController {
      * @param code
      * @return
      */
-    @RequestMapping("/checkcode")
+    @PostMapping("/checkcode")
     @ResponseBody
     public JSONObject checkUserCode(HttpServletRequest request, String code) {
         JSONUtil jsonUtil = new JSONUtil();
@@ -81,7 +95,7 @@ public class UserController {
             //3.激活成功修改账号状态
             user.setStatus(1);
             user.setPower(1);
-            userService.updateUserStatus(user);                    /* 有bug*/
+            userService.updateUserStatus(user);
             return jsonUtil.success("激活成功");
 
         } else {
@@ -146,24 +160,7 @@ public class UserController {
         User user1 = (User) request.getSession().getAttribute("user");
         //2判断用户是否登陆
         if (user1 != null) {
-         /*   String address=request.getParameter("address");
-            String birthday=request.getParameter("birthday");
-            String email=request.getParameter("email");
-            String sex=request.getParameter("sex");
-            String phone=request.getParameter("phone");
-            String name=request.getParameter("name");
-            user.setModify(user1.getModify());
-            user.setCode(user1.getCode());
-            user.setAddress(address);
-            user.setBirthday(birthday);
-            user.setEmail(email);
-            user.setName(name);
-            user.setSex(sex);
-            user.setPhone(phone);*/
 
-            user.setPower(user1.getPower());
-            user.setId(user1.getId());
-            user.setStatus(user1.getStatus());
             userService.updateUserStatus(user);
 
             System.out.println(user);
@@ -173,20 +170,22 @@ public class UserController {
         }
     }
 
-    //无法返回数据
+    //返回当前登陆的用户信息
     @RequestMapping(value = "/findusername", method = RequestMethod.GET)
     public User findUserName(HttpServletRequest request,HttpSession session, HttpServletResponse response) {
         //這行代碼是必須的嗎
 //        response.setHeader("Access-Control-Allow-Origin", "*");
 //        session.getAttributeNames();
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 //        String date = sdf.format(session.getCreationTime());
 //        session.getCreationTime();
         //这块代码有问题 可能获取session中的属性失败，肯能是session超时
         User user =(User)request.getSession().getAttribute("user");
         if (user!=null) {
-          return user;
-        }else return null;
+
+          return userService.findUserInfoById(user.getId());
+        }else
+            return null;
 //        System.out.println(session.getId());
 //
 //        User user = new User();
@@ -195,7 +194,7 @@ public class UserController {
 
 
     }
-
+//退出登陆
     @GetMapping("/signoutuser")
     public JSONObject signOutUser(HttpServletRequest request) {
         JSONUtil jsonUtil = new JSONUtil();
@@ -206,5 +205,41 @@ public class UserController {
             return jsonUtil.fail("退出失败。");
         }
     }
+    //修改密码
+    @PostMapping("/updatepwd")
+    public JSONObject updateUserPassWord(HttpServletRequest request) {
+        JSONUtil jsonUtil=new JSONUtil();
+        //1.获取用户登陆信息
+        User user1 = (User) request.getSession().getAttribute("user");
+        //2判断用户是否登陆
+        if (user1!= null) {
+            long id=user1.getId();//获取用户id;
+            String old_password=request.getParameter("old_password");//获取到旧密码
+            if(old_password.equals(userService.userPassword(id))==false){
+
+                return jsonUtil.fail("旧密码输入错误");
+            }else {
+                String new_password_1=request.getParameter("new_password_1");
+                String new_password_2=request.getParameter("new_password_2");
+                if (new_password_1.equals(new_password_2)==false){
+                    return jsonUtil.fail("新密码校验错误");
+                }else {
+                    try {
+                        userService.updateUserPassword(new_password_1,id);
+                        return jsonUtil.success("修改成功.请重新登录");
+                    } catch (Exception e) {
+                        return jsonUtil.fail("修改失败，后台超时");                    }
+
+                }
+            }
+
+        }
+        return jsonUtil.fail("登陆失效，请重新登录");
+
+    }
+
+
+
+
 
 }

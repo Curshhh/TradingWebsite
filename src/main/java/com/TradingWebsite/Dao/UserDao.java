@@ -55,4 +55,16 @@ public interface UserDao {
 
     @Select("select * from User where id=#{id}")
     User findUserInfoById(long id);
+
+    @Select("select password from User where id=#{id}")
+    String userPassword(long id);
+
+    /**
+     * 修改密码
+     * @param password
+     * @param id
+     * @return
+     */
+    @Update("update User set password=#{password} where id=#{id}")
+    boolean updateUserPassword(@Param("password")String password,@Param("id")long id);
 }

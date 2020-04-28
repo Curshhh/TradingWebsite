@@ -15,4 +15,7 @@ public interface CartService {
     double selectCartPrices(long uid);
     List<Long> findCidByUidFromCart(long uid);
     Cart findCartInfoByCid(long cid);
+    Long findUserCartNumber(long uid);
+    Long findUserCartQuantity(long uid);
+    Cart findCartInfoBySid(long sid);
 }

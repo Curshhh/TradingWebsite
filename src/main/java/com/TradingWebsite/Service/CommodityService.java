@@ -27,4 +27,8 @@ public interface CommodityService {
     List<Commodity> findPriceLowCommodityByPrice();
 
     Commodity findCommodityByNameForEquals(String name);
+
+    List<Commodity> findSortNewTimeWares(String sort);
+
+
 }
