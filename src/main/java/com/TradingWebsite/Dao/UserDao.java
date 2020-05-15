@@ -1,5 +1,6 @@
 package com.TradingWebsite.Dao;
 
+import com.TradingWebsite.Model.Commodity;
 import com.TradingWebsite.Model.User;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
@@ -93,4 +94,7 @@ public interface UserDao {
      */
     @Select("select * from User where email=#{email}")
     User findUserInfo(String email);
+
+    @Select("select * from User where name LIKE CONCAT('%',#{0},'%')")
+    List<User> findNameBy_Admin(String name);
 }

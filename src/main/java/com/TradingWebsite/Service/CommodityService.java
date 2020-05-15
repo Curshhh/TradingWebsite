@@ -40,6 +40,9 @@ public interface CommodityService {
 
     Long findCountSalesOfCommodity();
 
+    boolean updateCommodityInfoById(long id);
+
+    List<Commodity> findByNameOfCommodity_Admin(String name);
 
 
 

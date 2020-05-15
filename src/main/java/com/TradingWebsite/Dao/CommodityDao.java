@@ -15,9 +15,11 @@ public interface CommodityDao {
      * 查询所有商品
      * @return
      */
-    @Select(" select * from Commodity")
+    @Select("select Commodity.*,User.email from Commodity LEFT JOIN User ON Commodity.uid=User.id")
      List<Commodity> findAllCommodity();
 
+    @Select("select Commodity.*,User.email from Commodity LEFT JOIN User ON Commodity.uid=User.id where Commodity.name LIKE CONCAT('%',#{0},'%')")
+    List<Commodity> findByNameOfCommodity_Admin(String name);
     /**
      * 模糊查询商品名称
      * @return
@@ -114,6 +116,14 @@ public interface CommodityDao {
      */
     @Select("select * from Commodity where uid=#{uid}")
     List<Commodity> findCommodityByUserUid(long uid);
+
+    /**
+     * 修改商品信息，下架商品
+     * @param id
+     * @return
+     */
+    @Update("UPDATE Commodity set status=0,count=0 WHERE id=#{id}")
+    boolean updateCommodityInfoById(long id);
 
 
     /*----------------------管理员---------------------------------*/

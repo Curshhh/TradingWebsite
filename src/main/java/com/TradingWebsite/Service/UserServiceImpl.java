@@ -126,4 +126,8 @@ public class UserServiceImpl implements UserService {
     public User findUserInfo(String email) {
         return userDao.findUserInfo(email);
     }
+
+    public List<User> findNameBy_Admin(String name){
+        return userDao.findNameBy_Admin(name);
+    }
 }

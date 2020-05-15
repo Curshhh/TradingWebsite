@@ -76,7 +76,7 @@ public class UserController {
             //3.发送激活邮件
             String content = "" +
 
-                    "<a href='http://C:/Users/msi/Desktop/TradingWebSite_User/email_check.html?code="+code+"'>点击激活您的城市二手商品交易网账户</a>";
+                    "<a href='http://127.0.0.1:8848/TradingWebSite/email_check.html?code="+code+"'>点击激活您的城市二手商品交易网账户</a>";
             try {
                 mailService.sendHtmlMail(user.getEmail(), "城市二手商品交易网--激活邮件", content);
             } catch (Exception e) {
@@ -240,6 +240,7 @@ public class UserController {
                 }else {
                     try {
                         userService.updateUserPassword(new_password_1,id);
+                        request.getSession().removeAttribute("user");
                         return jsonUtil.success("修改成功.请重新登录");
                     } catch (Exception e) {
                         return jsonUtil.fail("修改失败，后台超时");
@@ -310,11 +311,31 @@ public class UserController {
             try {
                 userService.updateUserStatus(user);
             } catch (Exception e) {
-                return jsonUtil.fail("登请检查输入的信息格式是否正确");
+                return jsonUtil.fail("请检查输入的信息格式是否正确");
             }
             return jsonUtil.success("修改成功");
         }
         return jsonUtil.fail("登录失效请重新登录");
     }
 
+    /**
+     * 查询用户信息
+     * @param request
+     * @return
+     */
+    @PostMapping("/findUserInfoById")
+    public User findUserInfoById_Admin(HttpServletRequest request){
+        long id= Long.parseLong(request.getParameter("id"));
+        User user=userService.findUserInfoById(id);
+        return user;
+
+    }
+    @PostMapping("/findNameBy_Admin")
+    public PageInfo<User> findNameBy_Admin(HttpServletRequest request, @RequestParam("name") String name, @RequestParam("page") String page) {
+        String Uname = request.getParameter("name");
+        int page1 = Integer.parseInt(request.getParameter("page"));
+        PageHelper.startPage(page1, 10);//开启分页
+        PageInfo<User> pageInfo = new PageInfo<>(userService.findNameBy_Admin(Uname));
+        return pageInfo;
+    }
 }

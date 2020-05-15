@@ -56,7 +56,7 @@ public class OrdersController {
                     Cart cart=cartService.findCartInfoByCid(cid);
                     long quantity=cart.getQuantity();//购物车中某个商品的数量
                     double price=cart.getTotal();//购物车中某个商品的总价
-                //commodityService.findCommodityInfoById(cid);
+
 
                     orders.setCid(cid);
                     orders.setStatus(0);//交易中，0为未支付
@@ -75,9 +75,9 @@ public class OrdersController {
                         commodity.setStatus(0);//改变物品状态 未支付
                     }
                     commodityService.updateCommodityInfo(commodity);//执行修改
-                 cartService.deleteAllCartByUid(uid);//清空购物车
 
             }
+            cartService.deleteAllCartByUid(uid);//清空购物车
             return jsonUtil.success("创建订单成功");
         }else return jsonUtil.fail("登陆失效,请重新登录账户");
     }

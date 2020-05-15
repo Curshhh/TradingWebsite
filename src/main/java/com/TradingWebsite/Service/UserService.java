@@ -32,4 +32,6 @@ public interface UserService {
 
     User findUserInfo(String email);
 
+    List<User> findNameBy_Admin(String name);
+
 }

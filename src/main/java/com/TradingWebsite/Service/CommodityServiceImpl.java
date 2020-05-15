@@ -85,11 +85,11 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     public void updateCommodityInfo(Commodity commodity) {
-        try {
+//        try {
             this.commodityDao.updateCommodityInfo(commodity);
-        }catch (Exception e){
-            System.out.println("sql出错");
-        }
+//        }catch (Exception e){
+//            System.out.println("sql出错");
+//        }
     }
 
     /**
@@ -190,6 +190,12 @@ public class CommodityServiceImpl implements CommodityService {
     public List<Commodity> findCommodityByUserUid(long uid) {
         return commodityDao.findCommodityByUserUid(uid);
     }
+
+    @Override
+    public boolean updateCommodityInfoById(long id) {
+        return commodityDao.updateCommodityInfoById(id);
+    }
+
     /*----------------------管理员---------------------------------*/
     @Override
     public Long findCountOfCommodity() {
@@ -201,5 +207,8 @@ public class CommodityServiceImpl implements CommodityService {
        return commodityDao.findCountSalesOfCommodity();
     }
 
-
+    @Override
+    public List<Commodity> findByNameOfCommodity_Admin(String name) {
+        return commodityDao.findByNameOfCommodity_Admin(name);
+    }
 }
