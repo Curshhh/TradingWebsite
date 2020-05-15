@@ -1,6 +1,7 @@
 package com.TradingWebsite.Service;
 
 import com.TradingWebsite.Model.Commodity;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -29,6 +30,17 @@ public interface CommodityService {
     Commodity findCommodityByNameForEquals(String name);
 
     List<Commodity> findSortNewTimeWares(String sort);
+
+    Commodity findCommodityByName(String name);
+
+    List<Commodity> findCommodityByUserUid(long uid);
+
+
+    Long findCountOfCommodity();
+
+    Long findCountSalesOfCommodity();
+
+
 
 
 }

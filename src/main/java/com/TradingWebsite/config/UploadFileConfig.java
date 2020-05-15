@@ -9,7 +9,7 @@ public class UploadFileConfig extends WebMvcConfigurationSupport {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry){
-        registry.addResourceHandler("/images/**").addResourceLocations("/var/TradingWebsitePhoto/");
+        registry.addResourceHandler("/images/**").addResourceLocations("C:/Users/msi/Desktop/TradingWebSite/img/");
         super.addResourceHandlers(registry);
     }
 

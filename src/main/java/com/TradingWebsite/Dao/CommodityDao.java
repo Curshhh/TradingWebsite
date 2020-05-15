@@ -91,8 +91,44 @@ public interface CommodityDao {
     @Select("select name from Commodity where name=#{name}")
     Commodity findCommodityByNameForEquals(String name);
 
+    /**
+     * 查询价格最低的物品
+     * @param sort
+     * @return
+     */
     @Select("SELECT *from Commodity where count>=1 and sort=#{sort}  ORDER BY modify DESC LIMIT 0,5")
     List<Commodity> findSortNewTimeWares(String sort);
+
+    /**
+     * 根据商品名查询商品信息
+     * @param name
+     * @return
+     */
+    @Select("select * from Commodity where name=#{name}")
+    Commodity findCommodityByName(String name);
+
+    /**
+     * 根据用户id查询物品表
+     * @param uid
+     * @return List
+     */
+    @Select("select * from Commodity where uid=#{uid}")
+    List<Commodity> findCommodityByUserUid(long uid);
+
+
+    /*----------------------管理员---------------------------------*/
+    /**
+     * 管理员查询当前商品总数量
+     * @return
+     */
+    @Select("select SUM(count) from Commodity")
+    Long findCountOfCommodity();
+    /**
+     * 管理员查看当前商品销量
+     * @return
+     */
+    @Select("SELECT SUM(sales) from Commodity where sales<>0")
+    Long findCountSalesOfCommodity();
 
 
 }

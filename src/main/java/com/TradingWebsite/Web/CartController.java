@@ -2,6 +2,7 @@ package com.TradingWebsite.Web;
 
 import com.TradingWebsite.Model.Cart;
 import com.TradingWebsite.Model.Commodity;
+import com.TradingWebsite.Model.Manager;
 import com.TradingWebsite.Model.User;
 import com.TradingWebsite.Service.CartServiceImpl;
 import com.TradingWebsite.Service.CommodityServiceImpl;
@@ -10,6 +11,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -59,6 +61,9 @@ public class CartController {
                 cart.setStatus(commodity.getStatus());
                 cart.setTotal(price);
                 cart.setQuantity(total);
+                if(commodity.getStatus()==0){
+                    return jsonUtil.success("物品已售罄");
+                }
                 boolean flag = cartService.insertCommodityIntoCart(cart);//添加商品进入购物车
                 if (flag = true) {
                     return jsonUtil.success("添加成功");
@@ -240,5 +245,22 @@ public class CartController {
            return jsonUtil.success("修改数量成功");
         }else  return jsonUtil.fail("失败");
 
+    }
+
+    /*----------------------管理员---------------------------------*/
+
+    /**
+     * 查看购物商品总量
+     * @param request
+     * @return
+     */
+    @GetMapping("/findCountOfCart")
+    public JSONObject findCountOfCart(HttpServletRequest request){
+        JSONUtil jsonUtil = new JSONUtil();
+        Manager manager=(Manager) request.getSession().getAttribute("admin");
+        if(manager!=null){
+            Long Cnumber=cartService.findCountOfCart();
+            return jsonUtil.success(Cnumber);
+        } return null;
     }
 }

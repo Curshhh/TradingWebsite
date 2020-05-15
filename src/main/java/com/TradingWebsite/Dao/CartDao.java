@@ -96,4 +96,13 @@ public interface CartDao {
 
     @Select("select * from Cart where sid=#{sid}")
     Cart findCartInfoBySid(long sid);
+
+    /*----------------------管理员---------------------------------*/
+
+    /**
+     * 查看购物商品总量
+     * @return
+     */
+    @Select("SELECT SUM(quantity) FROM Cart")
+    Long findCountOfCart();
 }

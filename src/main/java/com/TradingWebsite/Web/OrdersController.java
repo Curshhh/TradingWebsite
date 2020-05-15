@@ -1,25 +1,19 @@
 package com.TradingWebsite.Web;
 
-import com.TradingWebsite.Model.Cart;
-import com.TradingWebsite.Model.Commodity;
-import com.TradingWebsite.Model.Orders;
-import com.TradingWebsite.Model.User;
+import com.TradingWebsite.Model.*;
 import com.TradingWebsite.Service.CartServiceImpl;
-import com.TradingWebsite.Service.CommodityService;
 import com.TradingWebsite.Service.CommodityServiceImpl;
 import com.TradingWebsite.Service.OrdersServiceImpl;
 import com.TradingWebsite.Uitls.JSONUtil;
 import com.alibaba.fastjson.JSONObject;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -62,9 +56,10 @@ public class OrdersController {
                     Cart cart=cartService.findCartInfoByCid(cid);
                     long quantity=cart.getQuantity();//购物车中某个商品的数量
                     double price=cart.getTotal();//购物车中某个商品的总价
+                //commodityService.findCommodityInfoById(cid);
 
                     orders.setCid(cid);
-                    orders.setStatus(1);//交易中，0为交易完成
+                    orders.setStatus(0);//交易中，0为未支付
                      orders.setModify(time);
                     orders.setQuantity(quantity);
                     orders.setUid(uid);
@@ -77,9 +72,10 @@ public class OrdersController {
                    commodity.setSales(wares_sales);
                    commodity.setCount(wares_number);//修改实体类中的数量
                     if (commodity.getCount()<=0){
-                        commodity.setStatus(0);//改变物品状态
+                        commodity.setStatus(0);//改变物品状态 未支付
                     }
                     commodityService.updateCommodityInfo(commodity);//执行修改
+                 cartService.deleteAllCartByUid(uid);//清空购物车
 
             }
             return jsonUtil.success("创建订单成功");
@@ -148,4 +144,84 @@ public class OrdersController {
             return orders;
         }return null;
     }
+
+    @PostMapping("/updateorders_status_1")
+    public JSONObject updateOrdersStatus_1ByCidAndUid(HttpServletRequest request){
+        JSONUtil jsonUtil=new JSONUtil();
+        User user = (User) request.getSession().getAttribute("user");
+        if (user!=null){
+            long cid= Long.parseLong(request.getParameter("cid"));
+            long uid= Long.parseLong(request.getParameter("uid"));
+//            try {
+                ordersService.updateOrdersStatus_1ByCidAndUid(cid,uid);
+                return jsonUtil.success("支付成功");
+//            } catch (Exception e) {
+//                return  jsonUtil.fail("系统出错");
+//            }
+        }else  return jsonUtil.fail("登陆失效，请重新登陆。");
+    }
+    @PostMapping("/updateorders_status_2")
+    public JSONObject updateOrdersStatus_2ByCidAndUid(HttpServletRequest request){
+        JSONUtil jsonUtil=new JSONUtil();
+        User user = (User) request.getSession().getAttribute("user");
+        if (user!=null){
+            long cid= Long.parseLong(request.getParameter("cid"));
+            long uid= Long.parseLong(request.getParameter("uid"));
+            try {
+                ordersService.updateOrdersStatus_2ByCidAndUid(cid,uid);
+                return jsonUtil.success("提交成功");
+            } catch (Exception e) {
+                return  jsonUtil.fail("系统出错");
+            }
+        }else  return jsonUtil.fail("登陆失效，请重新登陆。");
+    }
+    @PostMapping("/updateorders_status_3")
+    public JSONObject updateOrdersStatus_3ByCidAndUid(HttpServletRequest request){
+        JSONUtil jsonUtil=new JSONUtil();
+        User user = (User) request.getSession().getAttribute("user");
+        if (user!=null){
+            long cid= Long.parseLong(request.getParameter("cid"));
+            long uid= Long.parseLong(request.getParameter("uid"));
+            try {
+                ordersService.updateOrdersStatus_3ByCidAndUid(cid,uid);
+                return jsonUtil.success("收货成功");
+            } catch (Exception e) {
+                return  jsonUtil.fail("系统出错");
+            }
+        }else  return jsonUtil.fail("登陆失效，请重新登陆。");
+    }
+    /*----------------------管理员---------------------------------*/
+
+    /**
+     *查看订单完成量
+     * @param request
+     * @return
+     */
+    @GetMapping("/findCountEndOfOrders")
+    public JSONObject findCountEndOfOrders(HttpServletRequest request){
+        JSONUtil jsonUtil = new JSONUtil();
+        Manager manager=(Manager) request.getSession().getAttribute("admin");
+        if(manager!=null){
+            Long Onumber=ordersService.findCountEndOfOrders();
+            return jsonUtil.success(Onumber);
+        } return null;
+
+    }
+
+    /**
+     * 查看完成交易金额
+     * @param request
+     * @return
+     */
+    @GetMapping("findSumPriceOfOrders")
+    public JSONObject findSumPriceOfOrders(HttpServletRequest request){
+        JSONUtil jsonUtil = new JSONUtil();
+        Manager manager=(Manager) request.getSession().getAttribute("admin");
+        if(manager!=null){
+            String price=ordersService.findSumPriceOfOrders();
+            String price1=price;
+            return jsonUtil.success(price);
+        } return null;
+    }
+
 }

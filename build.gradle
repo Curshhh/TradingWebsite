@@ -20,7 +20,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.0.1'
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-    runtimeOnly 'mysql:mysql-connector-java' 
+    runtimeOnly 'mysql:mysql-connector-java'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     // https://mvnrepository.com/artifact/com.mchange/c3p0
     compile group: 'com.mchange', name: 'c3p0', version: '0.9.5.2'
@@ -35,14 +35,14 @@ dependencies {
     /*lomok*/
     annotationProcessor 'org.projectlombok:lombok:1.18.2'
     compileOnly 'org.projectlombok:lombok:1.18.2'
-    
+
     /*图片上传*/
     // https://mvnrepository.com/artifact/io.springfox/springfox-swagger2
     compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
     /*邮箱功能*/
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-mail
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '2.2.5.RELEASE'
-    
+
     /*分页*/
     // https://mvnrepository.com/artifact/com.github.pagehelper/pagehelper-spring-boot-starter
     compile group: 'com.github.pagehelper', name: 'pagehelper-spring-boot-starter', version: '1.2.12'

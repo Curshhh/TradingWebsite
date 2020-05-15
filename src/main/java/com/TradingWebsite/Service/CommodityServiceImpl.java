@@ -31,6 +31,7 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     public List<Commodity> findByNameOfCommodity(String name) {
+
         return this.commodityDao.findByNameOfCommodity(name);
     }
 
@@ -68,13 +69,13 @@ public class CommodityServiceImpl implements CommodityService {
      */
     @Override
     public boolean addCommodityInfo(Commodity commodity) {
-        try {
+//        try {
             commodityDao.addCommodityInfo(commodity);
             return true;
-        }catch (Exception e){
-            System.out.println("sql出错");
-            return false;
-        }
+//        }catch (Exception e){
+//            System.out.println("sql出错");
+//            return false;
+//        }
     }
 
     /**
@@ -126,7 +127,7 @@ public class CommodityServiceImpl implements CommodityService {
         try {
             return commodityDao.findNewCommodityByModify();
         } catch (Exception e) {
-            System.out.println("findNewCommodityByModify查询出错");
+
             return null;
         }
     }
@@ -139,7 +140,7 @@ public class CommodityServiceImpl implements CommodityService {
         try {
             return commodityDao.findPriceLowCommodityByPrice();
         } catch (Exception e) {
-            System.out.println("findPriceLowCommodityByPrice()查询出错");
+
             return null;
         }
     }
@@ -168,6 +169,36 @@ public class CommodityServiceImpl implements CommodityService {
             System.out.println("findSortNewTimeWares查询出错");
             return null;
         }
+    }
+
+    /**
+     * 根据物品名查询物品信息
+     * @param name
+     * @return
+     */
+    @Override
+    public Commodity findCommodityByName(String name) {
+        return commodityDao.findCommodityByName(name);
+    }
+
+    /**
+     * 查询用户的所有发布物品
+     * @param uid
+     * @return
+     */
+    @Override
+    public List<Commodity> findCommodityByUserUid(long uid) {
+        return commodityDao.findCommodityByUserUid(uid);
+    }
+    /*----------------------管理员---------------------------------*/
+    @Override
+    public Long findCountOfCommodity() {
+        return commodityDao.findCountOfCommodity();
+    }
+
+    @Override
+    public Long findCountSalesOfCommodity() {
+       return commodityDao.findCountSalesOfCommodity();
     }
 
 

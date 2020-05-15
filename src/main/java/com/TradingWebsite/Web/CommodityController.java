@@ -1,6 +1,7 @@
 package com.TradingWebsite.Web;
 
 import com.TradingWebsite.Model.Commodity;
+import com.TradingWebsite.Model.Manager;
 import com.TradingWebsite.Model.Publish;
 import com.TradingWebsite.Model.User;
 import com.TradingWebsite.Service.CommodityServiceImpl;
@@ -28,14 +29,7 @@ public class CommodityController {
     @Autowired
     private PublishServiceImpl publishService;
 
-    /**
-     * 查询所有商品
-     * @return
-     */
-    @PostMapping("/findwares")
-    public List<Commodity> findAllCommodity(){
-        return commodityService.findAllCommodity();
-    }
+
 
     /**
      * 模糊查询物品
@@ -58,11 +52,11 @@ public class CommodityController {
      * @param request
      * @return PageInfo<Commodity>
      */
-    @RequestMapping("/findwaresbytype")
+    @PostMapping("/findwaresbytype")
     public PageInfo<Commodity> findWaresByType(String sort,HttpServletRequest request){
         int page1=Integer.parseInt(request.getParameter("page"));
         String type=request.getParameter("sort");
-        PageHelper.startPage(page1,10);//开启分页
+        PageHelper.startPage(page1,8);//开启分页
         PageInfo<Commodity> pageInfo = new PageInfo<>(commodityService.findByTypeOfCommodity(type));
         return pageInfo;
     }
@@ -107,23 +101,24 @@ public class CommodityController {
             commodity.setModify(time);//商品修改或发布时间
             commodity.setSales(0);
             commodity.setName(request.getParameter("name"));
-            //防止重复提交
-//            if (commodity.equals(commodityService.findCommodityByNameForEquals(commodity.getName()))){
-//                return jsonUtil.fail("添加失败");
-//            }else {
+
                 if (commodityService.addCommodityInfo(commodity) == true) {
+                    //添加进商品成功后查询商品信息
+                    Commodity commodity1=commodityService.findCommodityByName(request.getParameter("name"));
+                    long cid=commodity1.getId();
                     //添加进我的发布
                     publish.setName(commodity.getName());
                     publish.setUid(user.getId());
+                    publish.setCid(cid);
                     publish.setModify(time);
                     publish.setPrice(commodity.getPrice());
                     publish.setQuantity(commodity.getCount());
                     if (publishService.insertMyPublish(publish) == true) {
                         return jsonUtil.success("添加成功");
                     } else {
-                        return jsonUtil.fail("添加失败");
+                        return jsonUtil.fail("添加到我的发布失败");
                 }
-                } else return jsonUtil.fail("添加失败");
+                } else return jsonUtil.fail("添加到商品列表失败");
 //            }
 
         }else {
@@ -134,7 +129,6 @@ public class CommodityController {
     /**
      * 用户修改商品信息
      * @param request
-     * @param commodity
      * @return
      */
     @PostMapping("/updatewares")
@@ -144,16 +138,18 @@ public class CommodityController {
         User user = (User) request.getSession().getAttribute("user");
         //2.验证用户状态
         if (user!=null&&1==user.getStatus()){
-            //3.执行修改商品操作
+
             Date date = new Date();
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");//获取当前日期
             String time = df.format(date);
             commodity.setModify(time);
-            commodity.setUid(user.getId());
-
-            commodityService.updateCommodityInfo(commodity);
-            System.out.println(commodity);
-            return jsonUtil.success("修改成功");
+            try {
+                commodityService.updateCommodityInfo(commodity);
+                return jsonUtil.success("修改成功");
+            } catch (Exception e) {
+                System.out.println(commodity);
+                return jsonUtil.fail("修改失败");
+            }
         }else
             return jsonUtil.fail("暂无权限,请登录或激活账户");
     }
@@ -217,11 +213,72 @@ public class CommodityController {
      */
     @GetMapping("/findnewsort")
     public List<Commodity> findSortNewTimeWares(HttpServletRequest request){
-
             String sort = request.getParameter("sort");
-
         return commodityService.findSortNewTimeWares(sort);
     }
+
+    /**
+     * 查询用户发布过的商品
+     * @param request
+     * @return
+     */
+    @PostMapping("/findwaresbyuser")
+    public List<Commodity> findWaresByUserUid(HttpServletRequest request){
+        User user = (User) request.getSession().getAttribute("user");
+        if(user!=null){
+            return commodityService.findCommodityByUserUid(user.getId());
+        }else return null;
+    }
+
+
+    /*----------------------管理员---------------------------------*/
+    /**
+     * 统计商品总数
+     * @param request
+     * @return
+     */
+    @GetMapping("/findCountNumberWares")
+    public JSONObject findCountOfCommodity(HttpServletRequest request){
+        JSONUtil jsonUtil = new JSONUtil();
+        Manager manager=(Manager) request.getSession().getAttribute("admin");
+        if(manager!=null){
+            Long Cnumber=commodityService.findCountOfCommodity();
+            return jsonUtil.success(Cnumber);
+        } return null;
+    }
+    /**
+     * 管理员查询所有商品
+     * @return
+     */
+    @PostMapping("/adminfindwares")
+    public PageInfo<Commodity> findAllCommodity(HttpServletRequest request){
+
+        //1。取出登陆管理员的session信息
+        Manager manager = (Manager) request.getSession().getAttribute("admin");
+        if (manager!=null){
+            int page1=Integer.parseInt(request.getParameter("page"));
+            PageHelper.startPage(page1,10);//开启分页
+            PageInfo<Commodity> pageInfo = new PageInfo<>(commodityService.findAllCommodity());
+            return pageInfo;
+        }else return null;
+
+    }
+    /**
+     * 统计商品销售量
+     * @param request
+     * @return
+     */
+    @GetMapping("/findCountSalesOfWares")
+    public JSONObject findCountSalesOfWares(HttpServletRequest request){
+        JSONUtil jsonUtil = new JSONUtil();
+        Manager manager=(Manager) request.getSession().getAttribute("admin");
+        if(manager!=null){
+            Long Cnumber=commodityService.findCountSalesOfCommodity();
+            return jsonUtil.success(Cnumber);
+        } return null;
+    }
+
+
 
 
 

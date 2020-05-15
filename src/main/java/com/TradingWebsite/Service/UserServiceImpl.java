@@ -5,6 +5,8 @@ import com.TradingWebsite.Model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
@@ -65,7 +67,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUserStatus(User user) {
 
-            this.userDao.updateUserStatus(user);
+            userDao.updateUserStatus(user);
 
     }
 
@@ -110,5 +112,18 @@ public class UserServiceImpl implements UserService {
 
         }
 
+    @Override
+    public Long findCountOfUser() {
+        return userDao.findCountOfUser();
+    }
 
+    @Override
+    public List<User> findListUser() {
+        return userDao.findListUser();
+    }
+
+    @Override
+    public User findUserInfo(String email) {
+        return userDao.findUserInfo(email);
+    }
 }

@@ -4,6 +4,8 @@ import com.TradingWebsite.Model.User;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Mapper
 @Component
 public interface UserDao {
@@ -41,7 +43,8 @@ public interface UserDao {
      * 修改用户信息
      * @param user
      */
-    @Update("update User set name=#{name},password=#{password},sex=#{sex},birthday=#{birthday},phone=#{phone},email=#{email},address=#{address},status=#{status},code=#{code},power=#{power},modify=#{modify} where id=#{id}")
+    @Update("update User set name=#{name},password=#{password},sex=#{sex},birthday=#{birthday},phone=#{phone},email=#{email},address=#{address}" +
+            ",status=#{status},code=#{code},power=#{power},modify=#{modify} where id=#{id}")
     void updateUserStatus(User user);
 
     /**
@@ -67,4 +70,27 @@ public interface UserDao {
      */
     @Update("update User set password=#{password} where id=#{id}")
     boolean updateUserPassword(@Param("password")String password,@Param("id")long id);
+
+    /*----------------------管理员---------------------------------*/
+
+    /**
+     * 查看当前用户数量
+     * @return
+     */
+    @Select("SELECT count(*) from User")
+    Long findCountOfUser();
+
+    /**
+     * 查询所有用户信息
+     * @return
+     */
+    @Select("select * from User")
+    List<User> findListUser();
+
+    /**
+     * 搜索单个用户
+     * @return
+     */
+    @Select("select * from User where email=#{email}")
+    User findUserInfo(String email);
 }

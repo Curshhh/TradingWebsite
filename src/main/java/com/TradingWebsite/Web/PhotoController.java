@@ -28,7 +28,7 @@ public class PhotoController {
 
         JSONUtil jsonUtil=new JSONUtil();
         //定义要上传文件 的存放路径
-        String localPath="/var/TradingWebsitePhoto//";
+        String localPath="C:/Users/msi/Desktop/TradingWebSite/img/";
         //获得文件名字
         String fileName=file.getOriginalFilename();
         //文件名=localpath+fileName
@@ -42,11 +42,11 @@ public class PhotoController {
             // 得到去掉了uri的路径
             String url = requestURL.substring(0, requestURL.length()-requestURI.length() + 1);
             url= localPath+fileName;
+            String image_url="img/"+fileName;
 
-
-            return  jsonUtil.success(url);
+            return  jsonUtil.success(image_url);
 
         }
-        return jsonUtil.fail("未知错误");
+        return jsonUtil.fail("上传失败");
     }
 }

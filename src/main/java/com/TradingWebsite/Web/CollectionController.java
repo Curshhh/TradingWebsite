@@ -2,6 +2,7 @@ package com.TradingWebsite.Web;
 
 import com.TradingWebsite.Model.Collection;
 import com.TradingWebsite.Model.Commodity;
+import com.TradingWebsite.Model.Manager;
 import com.TradingWebsite.Model.User;
 import com.TradingWebsite.Service.CollectionServiceImpl;
 import com.TradingWebsite.Service.CommodityServiceImpl;
@@ -13,6 +14,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.sun.javafx.collections.MappingChange;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -108,5 +110,6 @@ public class CollectionController {
             return jsonUtil.fail("请登陆后查看收藏夹");
         }
     }
+
 
 }

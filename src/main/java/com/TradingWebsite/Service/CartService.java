@@ -18,4 +18,5 @@ public interface CartService {
     Long findUserCartNumber(long uid);
     Long findUserCartQuantity(long uid);
     Cart findCartInfoBySid(long sid);
+    Long findCountOfCart();
 }

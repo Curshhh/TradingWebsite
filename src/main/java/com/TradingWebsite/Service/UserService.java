@@ -3,6 +3,7 @@ package com.TradingWebsite.Service;
 import com.TradingWebsite.Model.Commodity;
 import com.TradingWebsite.Model.User;
 
+import java.util.List;
 
 
 public interface UserService {
@@ -24,5 +25,11 @@ public interface UserService {
     String userPassword(long id);
 
     boolean updateUserPassword(String password,long id);
+
+    Long findCountOfUser();
+
+    List<User> findListUser();
+
+    User findUserInfo(String email);
 
 }

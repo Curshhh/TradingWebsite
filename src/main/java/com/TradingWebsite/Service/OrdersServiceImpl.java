@@ -53,4 +53,36 @@ public class OrdersServiceImpl implements OrdersService {
     public Map findOrdersAndCommodityInfoByOid(long oid) {
         return  ordersDao.findOrdersAndCommodityInfoByOid(oid);
     }
+
+    /**
+     * 更改订单状态
+     * @param cid
+     * @param uid
+     * @return
+     */
+    @Override
+    public boolean updateOrdersStatus_1ByCidAndUid(long cid, long uid) {
+        return ordersDao.updateOrdersStatus_1ByCidAndUid(cid,uid);
+    }
+
+    @Override
+    public boolean updateOrdersStatus_2ByCidAndUid(long cid, long uid) {
+        return ordersDao.updateOrdersStatus_2ByCidAndUid(cid,uid);
+    }
+
+    @Override
+    public boolean updateOrdersStatus_3ByCidAndUid(long cid, long uid) {
+        return ordersDao.updateOrdersStatus_3ByCidAndUid(cid,uid);
+    }
+
+    /*----------------------管理员---------------------------------*/
+    @Override
+    public Long findCountEndOfOrders() {
+        return ordersDao.findCountEndOfOrders();
+    }
+
+    @Override
+    public String findSumPriceOfOrders() {
+        return ordersDao.findSumPriceOfOrders();
+    }
 }

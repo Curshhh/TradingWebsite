@@ -5,6 +5,9 @@ import com.TradingWebsite.Model.Publish;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class PublishServiceImpl implements publishService {
 
@@ -13,11 +16,16 @@ public class PublishServiceImpl implements publishService {
     @Override
 
     public boolean insertMyPublish(Publish publish) {
-        try {
+//        try {
             publishDao.insertMyPublish(publish);
             return true;
-        } catch (Exception e) {
-            return false;
-        }
+//        } catch (Exception e) {
+//            return false;
+//        }
+    }
+
+    @Override
+    public List<Map> findSellerOrders(long uid) {
+        return  publishDao.findSellerOrders(uid);
     }
 }

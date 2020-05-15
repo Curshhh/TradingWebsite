@@ -145,4 +145,9 @@ public class CartServiceImpl implements  CartService {
             return null;
         }
     }
+
+    @Override
+    public Long findCountOfCart() {
+        return cartDao.findCountOfCart();
+    }
 }

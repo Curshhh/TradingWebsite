@@ -1,11 +1,15 @@
 package com.TradingWebsite.Web;
 
+import com.TradingWebsite.Model.Commodity;
+import com.TradingWebsite.Model.Manager;
 import com.TradingWebsite.Model.User;
 import com.TradingWebsite.Service.MailServiceImpl;
 import com.TradingWebsite.Service.UserServiceImpl;
 import com.TradingWebsite.Uitls.JSONUtil;
 import com.TradingWebsite.Uitls.UUIDUtils;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.catalina.Session;
 import org.apache.tomcat.util.http.fileupload.RequestContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +50,7 @@ public class UserController {
         String password=request.getParameter("password");
         String email=request.getParameter("email");
         String sex=request.getParameter("sex");
-
+        String address=request.getParameter("address");
         User u = userService.findByUserEmail(email);
         if (u != null) {
             return jsonUtil.fail("该邮箱已被注册，请更换有效邮箱");
@@ -59,13 +63,20 @@ public class UserController {
             user.setPassword(password);
             user.setCode(code);
             user.setModify(time);
+            user.setAddress(address);
+            user.setPower(0);
             System.out.println(code);
             //2.保存用户信息
-            userService.saveUserInfo(user);
-            //3.发送激活邮件
+            try {
+                userService.saveUserInfo(user);
 
+            } catch (Exception e) {
+                return jsonUtil.fail("注册失败");
+            }
+            //3.发送激活邮件
             String content = "" +
-                    "<a href='http://localhost:8080/user/checkcode?code=" + code + "'>点击激活您的城市二手商品交易网账户</a>";
+
+                    "<a href='http://C:/Users/msi/Desktop/TradingWebSite_User/email_check.html?code="+code+"'>点击激活您的城市二手商品交易网账户</a>";
             try {
                 mailService.sendHtmlMail(user.getEmail(), "城市二手商品交易网--激活邮件", content);
             } catch (Exception e) {
@@ -73,7 +84,6 @@ public class UserController {
             }
             return jsonUtil.success("注册成功");
         }
-
     }
 
     /**
@@ -113,7 +123,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public JSONObject login(HttpServletResponse response, HttpServletRequest request, @RequestParam("email") String email, @RequestParam("password") String password) {
+    public JSONObject login(HttpServletRequest request, @RequestParam("email") String email, @RequestParam("password") String password) {
         User user = userService.login(email, password);
         JSONUtil jsonUtil = new JSONUtil();
         if (user != null) {
@@ -161,7 +171,11 @@ public class UserController {
         //2判断用户是否登陆
         if (user1 != null) {
 
-            userService.updateUserStatus(user);
+//            try {
+                userService.updateUserStatus(user);
+//            } catch (Exception e) {
+//                return jsonUtil.fail("登请检查输入的信息格式是否正确");
+//            }
 
             System.out.println(user);
             return jsonUtil.success("修改成功");
@@ -173,7 +187,7 @@ public class UserController {
     //返回当前登陆的用户信息
     @RequestMapping(value = "/findusername", method = RequestMethod.GET)
     public User findUserName(HttpServletRequest request,HttpSession session, HttpServletResponse response) {
-        //這行代碼是必須的嗎
+
 //        response.setHeader("Access-Control-Allow-Origin", "*");
 //        session.getAttributeNames();
 //        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -199,7 +213,7 @@ public class UserController {
     public JSONObject signOutUser(HttpServletRequest request) {
         JSONUtil jsonUtil = new JSONUtil();
         try {
-            request.getSession().invalidate();
+            request.getSession().removeAttribute("user");
             return jsonUtil.success("退出成功。");
         } catch (Exception e) {
             return jsonUtil.fail("退出失败。");
@@ -228,7 +242,8 @@ public class UserController {
                         userService.updateUserPassword(new_password_1,id);
                         return jsonUtil.success("修改成功.请重新登录");
                     } catch (Exception e) {
-                        return jsonUtil.fail("修改失败，后台超时");                    }
+                        return jsonUtil.fail("修改失败，后台超时");
+                    }
 
                 }
             }
@@ -237,9 +252,69 @@ public class UserController {
         return jsonUtil.fail("登陆失效，请重新登录");
 
     }
+    /*----------------------管理员---------------------------------*/
 
+    @GetMapping("/findCountOfUser")
+    public JSONObject findCountOfUser(HttpServletRequest request){
+        JSONUtil jsonUtil = new JSONUtil();
+        Manager manager=(Manager) request.getSession().getAttribute("admin");
+        if(manager!=null){
+            Long Unumber=userService.findCountOfUser();
+            return jsonUtil.success(Unumber);
+        } return null;
 
+    }
 
+    /**
+     * 查询所有用户信息
+     * @param request
+     * @return
+     */
+    @PostMapping("/findListUser")
+    public PageInfo<User> findListUser(HttpServletRequest request){
 
+        Manager manager = (Manager) request.getSession().getAttribute("admin");
+        if (manager!=null){
+            int page1=Integer.parseInt(request.getParameter("page"));
+            PageHelper.startPage(page1,10);//开启分页
+            PageInfo<User> pageInfo=new PageInfo<>(userService.findListUser());
+            return pageInfo;
+        }return null;
+    }
+
+    /**
+     * 搜索用户信息
+     * @param request
+     * @return
+     */
+    @PostMapping("/findUserInfo")
+    public User findUserInfo(HttpServletRequest request){
+        String email=request.getParameter("email");
+        Manager manager = (Manager) request.getSession().getAttribute("admin");
+        if (manager!=null){
+           return userService.findUserInfo(email);
+        }
+        return null;
+    }
+
+    /**
+     * 管理员修改用户信息
+     * @param request
+     * @return
+     */
+    @PostMapping("/updateUserInfo")
+    public JSONObject updateUserInfo(HttpServletRequest request,User user){
+        JSONUtil jsonUtil = new JSONUtil();
+        Manager manager=(Manager) request.getSession().getAttribute("admin");
+        if(manager!=null){
+            try {
+                userService.updateUserStatus(user);
+            } catch (Exception e) {
+                return jsonUtil.fail("登请检查输入的信息格式是否正确");
+            }
+            return jsonUtil.success("修改成功");
+        }
+        return jsonUtil.fail("登录失效请重新登录");
+    }
 
 }

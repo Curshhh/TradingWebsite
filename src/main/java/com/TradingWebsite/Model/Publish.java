@@ -7,6 +7,7 @@ import lombok.Data;
 public class Publish {
     private long id;//发布id
     private long uid;//用户id
+    private long cid;//商品id
     private String name;//商品名
     private double price;//商品价格
     private long quantity;//商品数量
