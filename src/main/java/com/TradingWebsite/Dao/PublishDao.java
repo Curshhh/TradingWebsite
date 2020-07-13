@@ -27,4 +27,5 @@ public interface PublishDao {
      */
     @Select("SELECT Orders.oid,Orders.cid,Orders.modify,Orders.quantity,Orders.price,Orders.uid AS buyer,Publish.uid AS seller,Orders.status FROM Orders LEFT JOIN Publish ON Orders.cid=Publish.cid WHERE Publish.uid=#{uid}")
     List<Map> findSellerOrders(long uid);
+
 }
